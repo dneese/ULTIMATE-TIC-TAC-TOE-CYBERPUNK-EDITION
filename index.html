@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Tic-Tac-Toe - Кіберпанк</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --neon-cyan: #0ff;
+            --neon-pink: #f0f;
+            --neon-purple: #906cff;
+            --neon-green: #0f0;
+            --neon-yellow: #ff0;
+            --dark-bg: #0a0a16;
+            --darker-bg: #050510;
+            --grid-color: #1a1a2e;
+        }
+
+        body {
+            background: var(--darker-bg);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Orbitron', monospace;
+            color: white;
+            padding: 20px;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Scanlines effect */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 255, 255, 0.03) 0px,
+                transparent 1px,
+                transparent 2px,
+                rgba(0, 255, 255, 0.03) 3px
+            );
+            pointer-events: none;
+            z-index: 1;
+            animation: scanlines 8s linear infinite;
+        }
+
+        @keyframes scanlines {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(10px); }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 700px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 10px var(--neon-cyan);
+            margin-bottom: 5px;
+            letter-spacing: 3px;
+            animation: glitchTitle 3s infinite;
+        }
+
+        @keyframes glitchTitle {
+            0%, 90%, 100% { transform: translate(0); }
+            91% { transform: translate(-2px, 2px); }
+            93% { transform: translate(2px, -2px); }
+            95% { transform: translate(0); }
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            letter-spacing: 2px;
+        }
+
+        /* Language selector */
+        .language-selector {
+            position: absolute;
+            top: 0;
+            right: 0;
+            display: flex;
+            gap: 8px;
+        }
+
+        .lang-btn {
+            background: rgba(20, 20, 40, 0.7);
+            border: 1px solid var(--neon-purple);
+            color: var(--neon-cyan);
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            transition: all 0.3s ease;
+        }
+
+        .lang-btn.active {
+            background: rgba(144, 108, 255, 0.5);
+            box-shadow: 0 0 10px var(--neon-purple);
+        }
+
+        .lang-btn:hover {
+            background: rgba(144, 108, 255, 0.3);
+        }
+
+        /* Tutorial button */
+        .tutorial-btn {
+            padding: 8px 16px;
+            background: rgba(144, 108, 255, 0.3);
+            border: 1px solid var(--neon-purple);
+            border-radius: 6px;
+            color: var(--neon-cyan);
+            cursor: pointer;
+            font-size: 0.85rem;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .tutorial-btn:hover {
+            background: rgba(144, 108, 255, 0.5);
+            box-shadow: 0 0 15px var(--neon-purple);
+        }
+
+        /* Game info panel */
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .info-panel {
+            flex: 1;
+            padding: 15px;
+            background: rgba(10, 10, 30, 0.8);
+            border-radius: 8px;
+            border: 1px solid var(--neon-purple);
+            box-shadow: 0 0 10px rgba(144, 108, 255, 0.3);
+            text-align: center;
+        }
+
+        .player-turn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .player-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .player-x {
+            background: var(--neon-cyan);
+            color: var(--dark-bg);
+            box-shadow: 0 0 15px var(--neon-cyan);
+        }
+
+        .player-o {
+            background: var(--neon-pink);
+            color: var(--dark-bg);
+            box-shadow: 0 0 15px var(--neon-pink);
+        }
+
+        .score-display {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--neon-green);
+            text-shadow: 0 0 10px var(--neon-green);
+        }
+
+        .score-label {
+            font-size: 0.7rem;
+            opacity: 0.8;
+        }
+
+        /* Main game board */
+        .mega-board {
+            width: 100%;
+            max-width: 650px;
+            aspect-ratio: 1/1;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 15px;
+            background: var(--darker-bg);
+            padding: 15px;
+            border-radius: 12px;
+            border: 3px solid var(--neon-purple);
+            box-shadow: 
+                0 0 30px rgba(144, 108, 255, 0.5),
+                inset 0 0 30px rgba(0, 0, 0, 0.6);
+        }
+
+        /* Local board (each small 3x3) */
+        .local-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 4px;
+            background: var(--grid-color);
+            padding: 6px;
+            border-radius: 8px;
+            border: 2px solid rgba(144, 108, 255, 0.4);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .local-board.active {
+            border-color: var(--neon-yellow);
+            box-shadow: 0 0 25px var(--neon-yellow), inset 0 0 15px rgba(255, 255, 0, 0.2);
+            animation: activeBoardPulse 1.5s infinite;
+        }
+
+        @keyframes activeBoardPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .local-board.won {
+            pointer-events: none;
+        }
+
+        .local-board.won::before {
+            content: attr(data-winner);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 8rem;
+            font-weight: 900;
+            opacity: 0.3;
+            z-index: 10;
+            animation: wonAppear 0.5s ease-out;
+        }
+
+        .local-board.won-x::before {
+            color: var(--neon-cyan);
+            text-shadow: 0 0 30px var(--neon-cyan);
+        }
+
+        .local-board.won-o::before {
+            color: var(--neon-pink);
+            text-shadow: 0 0 30px var(--neon-pink);
+        }
+
+        @keyframes wonAppear {
+            from { transform: translate(-50%, -50%) scale(0) rotate(-180deg); opacity: 0; }
+            to { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 0.3; }
+        }
+
+        .local-board.won-x {
+            background: rgba(0, 255, 255, 0.1);
+            border-color: var(--neon-cyan);
+        }
+
+        .local-board.won-o {
+            background: rgba(255, 0, 255, 0.1);
+            border-color: var(--neon-pink);
+        }
+
+        .local-board.tied {
+            background: rgba(128, 128, 128, 0.2);
+            border-color: #666;
+            pointer-events: none;
+        }
+
+        .local-board.tied::before {
+            content: '—';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 10rem;
+            font-weight: 900;
+            color: #666;
+            opacity: 0.3;
+            z-index: 10;
+        }
+
+        /* Individual cells */
+        .cell {
+            background: rgba(20, 20, 40, 0.9);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(144, 108, 255, 0.3);
+            position: relative;
+        }
+
+        .cell::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: radial-gradient(circle, rgba(0, 255, 255, 0.3), transparent);
+            transform: translate(-50%, -50%);
+            transition: all 0.3s ease;
+            border-radius: 50%;
+        }
+
+        .cell:hover:not(.x):not(.o)::before {
+            width: 100%;
+            height: 100%;
+        }
+
+        .cell:hover:not(.x):not(.o) {
+            transform: scale(1.1);
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 10px var(--neon-cyan);
+        }
+
+        .cell.x, .cell.o {
+            animation: cellAppear 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            cursor: default;
+        }
+
+        @keyframes cellAppear {
+            0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+            50% { transform: scale(1.2) rotate(10deg); }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        .cell.x {
+            color: var(--neon-cyan);
+            text-shadow: 0 0 15px var(--neon-cyan);
+        }
+
+        .cell.o {
+            color: var(--neon-pink);
+            text-shadow: 0 0 15px var(--neon-pink);
+        }
+
+        .cell.disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        /* Status message */
+        .status-message {
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-align: center;
+            min-height: 40px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            background: rgba(20, 20, 40, 0.8);
+            border: 2px solid var(--neon-purple);
+            box-shadow: 0 0 20px rgba(144, 108, 255, 0.4);
+            width: 100%;
+            color: var(--neon-cyan);
+            text-shadow: 0 0 10px var(--neon-cyan);
+            transition: all 0.3s ease;
+        }
+
+        .status-message.win {
+            background: rgba(144, 108, 255, 0.3);
+            border-color: var(--neon-green);
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.6);
+            color: var(--neon-green);
+            animation: statusGlitch 2s infinite;
+            font-size: 1.3rem;
+        }
+
+        @keyframes statusGlitch {
+            0%, 94%, 100% { transform: translate(0); }
+            95% { transform: translate(-3px, 3px); }
+            97% { transform: translate(3px, -3px); }
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+            flex-wrap: wrap;
+        }
+
+        .cyber-button {
+            flex: 1;
+            min-width: 140px;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cyber-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .cyber-button:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--neon-purple), #6a00ff);
+            color: white;
+            box-shadow: 0 0 20px rgba(144, 108, 255, 0.5);
+            border: 2px solid var(--neon-cyan);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 25px rgba(144, 108, 255, 0.8);
+        }
+
+        .btn-secondary {
+            background: rgba(20, 20, 40, 0.8);
+            color: var(--neon-cyan);
+            border: 2px solid var(--neon-cyan);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 255, 255, 0.1);
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.6);
+        }
+
+        /* Tutorial modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--dark-bg);
+            border: 2px solid var(--neon-purple);
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 0 40px rgba(144, 108, 255, 0.6);
+            animation: modalAppear 0.3s ease-out;
+        }
+
+        @keyframes modalAppear {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-header {
+            font-size: 1.8rem;
+            color: var(--neon-cyan);
+            text-shadow: 0 0 10px var(--neon-cyan);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .modal-body {
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .modal-body h3 {
+            color: var(--neon-pink);
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .modal-body ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .modal-body li {
+            margin-bottom: 8px;
+        }
+
+        .modal-close {
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .highlight {
+            color: var(--neon-yellow);
+            font-weight: bold;
+        }
+
+        /* Responsive */
+        @media (max-width: 700px) {
+            h1 { font-size: 1.8rem; }
+            .subtitle { font-size: 0.75rem; }
+            .mega-board { gap: 10px; padding: 10px; }
+            .local-board { gap: 3px; padding: 4px; }
+            .cell { font-size: 1.4rem; }
+            .local-board.won::before { font-size: 5rem; }
+            .game-info { flex-direction: column; }
+            .language-selector { position: static; margin-bottom: 10px; }
+        }
+
+        @media (max-width: 480px) {
+            .mega-board { gap: 8px; padding: 8px; max-width: 100%; }
+            .local-board { gap: 2px; padding: 3px; }
+            .cell { font-size: 1.2rem; }
+            .local-board.won::before { font-size: 4rem; }
+            .controls { flex-direction: column; }
+            .cyber-button { min-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="language-selector">
+                <button class="lang-btn active" data-lang="uk">UA</button>
+                <button class="lang-btn" data-lang="en">EN</button>
+            </div>
+            <h1 data-uk="ULTIMATE TIC-TAC-TOE" data-en="ULTIMATE TIC-TAC-TOE">ULTIMATE TIC-TAC-TOE</h1>
+            <div class="subtitle" data-uk="КІБЕРПАНК ВЕРСІЯ" data-en="CYBERPUNK EDITION">КІБЕРПАНК ВЕРСІЯ</div>
+            <button class="tutorial-btn" id="tutorialBtn" data-uk="📖 Як грати?" data-en="📖 How to play?">📖 Як грати?</button>
+        </div>
+
+        <!-- Game Info -->
+        <div class="game-info">
+            <div class="info-panel">
+                <div class="player-turn">
+                    <div class="player-icon player-x">X</div>
+                    <div>
+                        <div style="font-size: 0.9rem; opacity: 0.8;" data-uk="Зараз грає" data-en="Current player">Зараз грає</div>
+                        <div id="currentPlayerText" style="font-size: 1.2rem; font-weight: bold;" data-uk="Гравець X" data-en="Player X">Гравець X</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="info-panel">
+                <div style="font-size: 0.8rem; opacity: 0.8; margin-bottom: 8px;" data-uk="РАХУНОК" data-en="SCORE">РАХУНОК</div>
+                <div class="score-display">
+                    <div class="score-item">
+                        <div class="score-value" id="scoreX">0</div>
+                        <div class="score-label">X</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-value" id="scoreO">0</div>
+                        <div class="score-label">O</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Message -->
+        <div class="status-message" id="status" data-uk="Гравець X може зробити хід в будь-якій дошці" data-en="Player X can move in any board">
+            Гравець X може зробити хід в будь-якій дошці
+        </div>
+
+        <!-- Main Game Board -->
+        <div class="mega-board" id="megaBoard"></div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <button class="cyber-button btn-primary" id="resetBtn">
+                <span data-uk="🔄 Нова гра" data-en="🔄 New Game">🔄 Нова гра</span>
+            </button>
+            <button class="cyber-button btn-secondary" id="rulesBtn">
+                <span data-uk="📜 Правила" data-en="📜 Rules">📜 Правила</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Tutorial Modal -->
+    <div class="modal" id="tutorialModal">
+        <div class="modal-content">
+            <div class="modal-header" data-uk="🎮 Як грати в Ultimate Tic-Tac-Toe" data-en="🎮 How to play Ultimate Tic-Tac-Toe">
+                🎮 Як грати в Ultimate Tic-Tac-Toe
+            </div>
+            <div class="modal-body">
+                <h3 data-uk="🎯 Мета гри" data-en="🎯 Game Objective">🎯 Мета гри</h3>
+                <p data-uk="Виграти три малі дошки поспіль (горизонтально, вертикально або діагонально) на великій дошці 3×3." data-en="Win three small boards in a row (horizontally, vertically or diagonally) on the large 3×3 board.">
+                    Виграти <span class="highlight">три малі дошки поспіль</span> (горизонтально, вертикально або діагонально) на великій дошці 3×3.
+                </p>
+
+                <h3 data-uk="📋 Правила" data-en="📋 Rules">📋 Правила</h3>
+                <ul>
+                    <li data-uk="Перший хід: Гравець X починає і може зробити хід в будь-якій клітинці будь-якої малої дошки." data-en="First move: Player X starts and can move in any cell of any small board.">
+                        <strong data-uk="Перший хід:" data-en="First move:">Перший хід:</strong> <span data-uk="Гравець X починає і може зробити хід в будь-якій клітинці будь-якої малої дошки." data-en="Player X starts and can move in any cell of any small board.">Гравець X починає і може зробити хід в будь-якій клітинці будь-якої малої дошки.</span>
+                    </li>
+                    
+                    <li data-uk="Наступні ходи: Позиція вашого ходу визначає, в якій малій дошці має ходити наступний гравець." data-en="Next moves: Your move position determines in which small board the next player must play.">
+                        <strong data-uk="Наступні ходи:" data-en="Next moves:">Наступні ходи:</strong> <span data-uk="Позиція вашого ходу визначає, в якій малій дошці має ходити наступний гравець." data-en="Your move position determines in which small board the next player must play.">Позиція вашого ходу визначає, <span class="highlight">в якій малій дошці має ходити наступний гравець</span>.</span>
+                    </li>
+                    
+                    <li data-uk="Приклад: Якщо ви зробили хід у верхньому правому кутку малої дошки, наступний гравець ПОВИНЕН зробити хід у верхній правій малій дошці." data-en="Example: If you move in the top-right corner of a small board, the next player MUST play in the top-right small board.">
+                        <strong data-uk="Приклад:" data-en="Example:">Приклад:</strong> <span data-uk="Якщо ви зробили хід у верхньому правому кутку малої дошки, наступний гравець ПОВИНЕН зробити хід у верхній правій малій дошці." data-en="If you move in the top-right corner of a small board, the next player MUST play in the top-right small board.">Якщо ви зробили хід у верхньому правому кутку малої дошки, наступний гравець ПОВИНЕН зробити хід у верхній правій малій дошці.</span>
+                    </li>
+                    
+                    <li data-uk="Виграш малої дошки: Виграйте малу дошку, поставивши три свої символи поспіль (як у звичайних хрестиках-ноликах)." data-en="Winning a small board: Win a small board by placing three of your symbols in a row (like regular tic-tac-toe).">
+                        <strong data-uk="Виграш малої дошки:" data-en="Winning a small board:">Виграш малої дошки:</strong> <span data-uk="Виграйте малу дошку, поставивши три свої символи поспіль (як у звичайних хрестиках-ноликах)." data-en="Win a small board by placing three of your symbols in a row (like regular tic-tac-toe).">Виграйте малу дошку, поставивши три свої символи поспіль (як у звичайних хрестиках-ноликах).</span>
+                    </li>
+                    
+                    <li data-uk="Заповнена дошка: Якщо вас відправляють на вже виграну або нічийну дошку, ви можете зробити хід на будь-якій доступній дошці." data-en="Full board: If you're sent to an already won or tied board, you can move in any available board.">
+                        <strong data-uk="Заповнена дошка:" data-en="Full board:">Заповнена дошка:</strong> <span data-uk="Якщо вас відправляють на вже виграну або нічийну дошку, ви можете зробити хід на будь-якій доступній дошці." data-en="If you're sent to an already won or tied board, you can move in any available board.">Якщо вас відправляють на вже виграну або нічийну дошку, ви можете зробити хід на будь-якій доступній дошці.</span>
+                    </li>
+                    
+                    <li data-uk="Нічия: Якщо мала дошка заповнена без переможця, вона вважається нічиєю (сірою)." data-en="Tie: If a small board is filled without a winner, it's considered a tie (gray).">
+                        <strong data-uk="Нічия:" data-en="Tie:">Нічия:</strong> <span data-uk="Якщо мала дошка заповнена без переможця, вона вважається нічиєю (сірою)." data-en="If a small board is filled without a winner, it's considered a tie (gray).">Якщо мала дошка заповнена без переможця, вона вважається нічиєю (сірою).</span>
+                    </li>
+                </ul>
+
+                <h3 data-uk="💡 Підказки" data-en="💡 Tips">💡 Підказки</h3>
+                <ul>
+                    <li data-uk="Думайте наперед! Ваш хід визначає, де гратиме суперник." data-en="Think ahead! Your move determines where your opponent will play.">Думайте наперед! Ваш хід визначає, де гратиме суперник.</li>
+                    <li data-uk="Намагайтеся контролювати центральну дошку." data-en="Try to control the center board.">Намагайтеся контролювати центральну дошку.</li>
+                    <li data-uk="Жовта підсвітка показує активну дошку." data-en="Yellow highlight shows the active board."><span class="highlight" data-uk="Жовта підсвітка" data-en="Yellow highlight">Жовта підсвітка</span> <span data-uk="показує активну дошку." data-en="shows the active board.">показує активну дошку.</span></li>
+                    <li data-uk="Стратегія набагато важливіша, ніж у звичайних хрестиках-ноликах!" data-en="Strategy is much more important than in regular tic-tac-toe!">Стратегія набагато важливіша, ніж у звичайних хрестиках-ноликах!</li>
+                </ul>
+
+                <h3 data-uk="🎨 Легенда" data-en="🎨 Legend">🎨 Легенда</h3>
+                <ul>
+                    <li><span style="color: var(--neon-cyan);">🔵 <span data-uk="Блакитний X" data-en="Blue X">Блакитний X</span></span> — <span data-uk="символ гравця X" data-en="symbol of player X">символ гравця X</span></li>
+                    <li><span style="color: var(--neon-pink);">🔴 <span data-uk="Рожевий O" data-en="Pink O">Рожевий O</span></span> — <span data-uk="символ гравця O" data-en="symbol of player O">символ гравця O</span></li>
+                    <li><span style="color: var(--neon-yellow);">🟡 <span data-uk="Жовта рамка" data-en="Yellow border">Жовта рамка</span></span> — <span data-uk="активна дошка" data-en="active board">активна дошка</span></li>
+                    <li><span style="color: #666;">⚪ <span data-uk="Сіра дошка" data-en="Gray board">Сіра дошка</span></span> — <span data-uk="нічия" data-en="tie">нічия</span></li>
+                </ul>
+            </div>
+            <button class="cyber-button btn-primary modal-close" id="closeModal" data-uk="Зрозуміло, починаємо!" data-en="Got it, let's start!">
+                Зрозуміло, починаємо!
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // LANGUAGE MANAGER
+        // ============================================
+        class LanguageManager {
+            constructor() {
+                this.currentLang = 'uk';
+                this.init();
+            }
+            
+            init() {
+                // Try to get saved language from localStorage
+                const savedLang = localStorage.getItem('ultimateTicTacToeLang');
+                if (savedLang) {
+                    this.currentLang = savedLang;
+                }
+                
+                this.setupEventListeners();
+                this.applyLanguage();
+            }
+            
+            setupEventListeners() {
+                const langButtons = document.querySelectorAll('.lang-btn');
+                langButtons.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const lang = btn.dataset.lang;
+                        this.setLanguage(lang);
+                    });
+                });
+            }
+            
+            setLanguage(lang) {
+                this.currentLang = lang;
+                localStorage.setItem('ultimateTicTacToeLang', lang);
+                this.applyLanguage();
+                
+                // Update active button
+                document.querySelectorAll('.lang-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.lang === lang);
+                });
+            }
+            
+            applyLanguage() {
+                // Update all elements with data attributes for language
+                const elements = document.querySelectorAll('[data-uk], [data-en]');
+                elements.forEach(element => {
+                    if (element.dataset[this.currentLang]) {
+                        if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+                            element.placeholder = element.dataset[this.currentLang];
+                        } else {
+                            element.textContent = element.dataset[this.currentLang];
+                        }
+                    }
+                });
+            }
+            
+            getText(ukText, enText) {
+                return this.currentLang === 'uk' ? ukText : enText;
+            }
+            
+            getCurrentLang() {
+                return this.currentLang;
+            }
+        }
+
+        // ============================================
+        // SOUND GENERATOR
+        // ============================================
+        class SoundGenerator {
+            constructor() {
+                this.audioContext = null;
+                this.init();
+            }
+            
+            init() {
+                try {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                } catch (e) {
+                    console.log('Web Audio API is not supported in this browser');
+                }
+            }
+            
+            playTone(frequency, duration, type = 'sine', volume = 0.1) {
+                if (!this.audioContext) return;
+                
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+                
+                oscillator.type = type;
+                oscillator.frequency.value = frequency;
+                
+                gainNode.gain.value = volume;
+                gainNode.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + duration);
+                
+                oscillator.start(this.audioContext.currentTime);
+                oscillator.stop(this.audioContext.currentTime + duration);
+            }
+            
+            playMoveSound() {
+                this.playTone(523.25, 0.1, 'square', 0.05); // C5
+            }
+            
+            playWinSound() {
+                this.playTone(659.25, 0.3, 'sine', 0.1); // E5
+                setTimeout(() => this.playTone(783.99, 0.3, 'sine', 0.1), 100); // G5
+                setTimeout(() => this.playTone(1046.50, 0.5, 'sine', 0.1), 200); // C6
+            }
+            
+            playBoardWinSound() {
+                this.playTone(392.00, 0.2, 'sine', 0.08); // G4
+                setTimeout(() => this.playTone(523.25, 0.3, 'sine', 0.08), 150); // C5
+            }
+        }
+
+        // ============================================
+        // GAME LOGIC
+        // ============================================
+        class UltimateTicTacToe {
+            constructor() {
+                this.languageManager = new LanguageManager();
+                this.soundGenerator = new SoundGenerator();
+                this.currentPlayer = 'X';
+                this.nextBoard = null;
+                this.gameOver = false;
+                this.scores = { X: 0, O: 0 };
+                this.megaBoard = Array(9).fill().map(() => Array(9).fill(null));
+                this.wonBoards = Array(9).fill(null);
+                this.init();
+            }
+            
+            init() {
+                this.createBoard();
+                this.setupEventListeners();
+                this.updateDisplay();
+            }
+            
+            createBoard() {
+                const megaBoard = document.getElementById('megaBoard');
+                megaBoard.innerHTML = '';
+                
+                for (let boardIndex = 0; boardIndex < 9; boardIndex++) {
+                    const localBoard = document.createElement('div');
+                    localBoard.className = 'local-board';
+                    localBoard.dataset.index = boardIndex;
+                    
+                    for (let cellIndex = 0; cellIndex < 9; cellIndex++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'cell';
+                        cell.dataset.board = boardIndex;
+                        cell.dataset.cell = cellIndex;
+                        cell.addEventListener('click', (e) => this.handleCellClick(e));
+                        localBoard.appendChild(cell);
+                    }
+                    
+                    megaBoard.appendChild(localBoard);
+                }
+            }
+            
+            setupEventListeners() {
+                document.getElementById('resetBtn').addEventListener('click', () => this.resetGame());
+                document.getElementById('rulesBtn').addEventListener('click', () => this.showTutorial());
+                document.getElementById('tutorialBtn').addEventListener('click', () => this.showTutorial());
+                document.getElementById('closeModal').addEventListener('click', () => this.hideTutorial());
+                
+                // Close modal when clicking outside
+                document.getElementById('tutorialModal').addEventListener('click', (e) => {
+                    if (e.target.id === 'tutorialModal') {
+                        this.hideTutorial();
+                    }
+                });
+            }
+            
+            handleCellClick(event) {
+                if (this.gameOver) return;
+                
+                const cell = event.currentTarget;
+                const boardIndex = parseInt(cell.dataset.board);
+                const cellIndex = parseInt(cell.dataset.cell);
+                
+                // Check if move is allowed
+                if (!this.isMoveAllowed(boardIndex, cellIndex)) return;
+                
+                // Make the move
+                this.makeMove(boardIndex, cellIndex);
+            }
+            
+            isMoveAllowed(boardIndex, cellIndex) {
+                // Check if the board is already won or tied
+                if (this.wonBoards[boardIndex]) return false;
+                
+                // Check if cell is already occupied
+                if (this.megaBoard[boardIndex][cellIndex]) return false;
+                
+                // Check if this is the first move (any board is allowed)
+                if (this.nextBoard === null) return true;
+                
+                // Check if the move is in the correct board
+                if (this.nextBoard !== boardIndex) return false;
+                
+                return true;
+            }
+            
+            makeMove(boardIndex, cellIndex) {
+                // Update game state
+                this.megaBoard[boardIndex][cellIndex] = this.currentPlayer;
+                
+                // Update UI
+                const cell = document.querySelector(`.cell[data-board="${boardIndex}"][data-cell="${cellIndex}"]`);
+                cell.textContent = this.currentPlayer;
+                cell.classList.add(this.currentPlayer.toLowerCase());
+                
+                // Play move sound
+                this.soundGenerator.playMoveSound();
+                
+                // Check for win in the local board
+                this.checkLocalBoardWin(boardIndex);
+                
+                // Check for overall game win
+                this.checkGameWin();
+                
+                // Determine next board
+                this.nextBoard = this.wonBoards[cellIndex] ? null : cellIndex;
+                
+                // Switch player
+                this.currentPlayer = this.currentPlayer === 'X' ? 'O' : 'X';
+                
+                // Update display
+                this.updateDisplay();
+            }
+            
+            checkLocalBoardWin(boardIndex) {
+                const board = this.megaBoard[boardIndex];
+                const winPatterns = [
+                    [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+                    [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
+                    [0, 4, 8], [2, 4, 6]             // diagonals
+                ];
+                
+                for (const pattern of winPatterns) {
+                    const [a, b, c] = pattern;
+                    if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+                        // Local board is won
+                        this.wonBoards[boardIndex] = board[a];
+                        this.scores[board[a]]++;
+                        
+                        // Update UI
+                        const localBoard = document.querySelector(`.local-board[data-index="${boardIndex}"]`);
+                        localBoard.classList.add('won', `won-${board[a].toLowerCase()}`);
+                        localBoard.dataset.winner = board[a];
+                        
+                        // Play win sound
+                        this.soundGenerator.playBoardWinSound();
+                        return;
+                    }
+                }
+                
+                // Check for tie in local board
+                if (board.every(cell => cell !== null) && !this.wonBoards[boardIndex]) {
+                    this.wonBoards[boardIndex] = 'T';
+                    const localBoard = document.querySelector(`.local-board[data-index="${boardIndex}"]`);
+                    localBoard.classList.add('tied');
+                }
+            }
+            
+            checkGameWin() {
+                const winPatterns = [
+                    [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+                    [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
+                    [0, 4, 8], [2, 4, 6]             // diagonals
+                ];
+                
+                for (const pattern of winPatterns) {
+                    const [a, b, c] = pattern;
+                    if (this.wonBoards[a] && this.wonBoards[a] === this.wonBoards[b] && this.wonBoards[a] === this.wonBoards[c]) {
+                        // Game is won
+                        this.gameOver = true;
+                        this.soundGenerator.playWinSound();
+                        
+                        const status = document.getElementById('status');
+                        status.textContent = this.languageManager.getText(
+                            `🎉 Гравець ${this.wonBoards[a]} переміг!`,
+                            `🎉 Player ${this.wonBoards[a]} wins!`
+                        );
+                        status.classList.add('win');
+                        return;
+                    }
+                }
+                
+                // Check for overall tie
+                if (this.wonBoards.every(board => board !== null)) {
+                    this.gameOver = true;
+                    const status = document.getElementById('status');
+                    status.textContent = this.languageManager.getText('🤝 Нічия!', '🤝 Game tied!');
+                    status.classList.add('win');
+                }
+            }
+            
+            updateDisplay() {
+                // Update current player display
+                const currentPlayerText = document.getElementById('currentPlayerText');
+                currentPlayerText.textContent = this.languageManager.getText(
+                    `Гравець ${this.currentPlayer}`,
+                    `Player ${this.currentPlayer}`
+                );
+                
+                // Update player icon
+                const playerIcon = document.querySelector('.player-icon');
+                playerIcon.className = `player-icon player-${this.currentPlayer.toLowerCase()}`;
+                playerIcon.textContent = this.currentPlayer;
+                
+                // Update scores
+                document.getElementById('scoreX').textContent = this.scores.X;
+                document.getElementById('scoreO').textContent = this.scores.O;
+                
+                // Update status message
+                this.updateStatusMessage();
+                
+                // Update active boards
+                this.updateActiveBoards();
+            }
+            
+            updateStatusMessage() {
+                const status = document.getElementById('status');
+                
+                if (this.gameOver) return;
+                
+                if (this.nextBoard === null) {
+                    status.textContent = this.languageManager.getText(
+                        `Гравець ${this.currentPlayer} може зробити хід в будь-якій дошці`,
+                        `Player ${this.currentPlayer} can move in any board`
+                    );
+                } else {
+                    status.textContent = this.languageManager.getText(
+                        `Гравець ${this.currentPlayer} повинен зробити хід в дошці ${this.nextBoard + 1}`,
+                        `Player ${this.currentPlayer} must play in board ${this.nextBoard + 1}`
+                    );
+                }
+                
+                status.classList.remove('win');
+            }
+            
+            updateActiveBoards() {
+                // Remove active class from all boards
+                document.querySelectorAll('.local-board').forEach(board => {
+                    board.classList.remove('active');
+                });
+                
+                // Add active class to allowed boards
+                if (this.nextBoard === null) {
+                    // All non-won boards are active
+                    document.querySelectorAll('.local-board').forEach(board => {
+                        const index = parseInt(board.dataset.index);
+                        if (!this.wonBoards[index]) {
+                            board.classList.add('active');
+                        }
+                    });
+                } else {
+                    // Only the specified board is active
+                    const targetBoard = document.querySelector(`.local-board[data-index="${this.nextBoard}"]`);
+                    if (targetBoard && !this.wonBoards[this.nextBoard]) {
+                        targetBoard.classList.add('active');
+                    } else {
+                        // If target board is won/tied, all non-won boards become active
+                        document.querySelectorAll('.local-board').forEach(board => {
+                            const index = parseInt(board.dataset.index);
+                            if (!this.wonBoards[index]) {
+                                board.classList.add('active');
+                            }
+                        });
+                    }
+                }
+            }
+            
+            resetGame() {
+                this.currentPlayer = 'X';
+                this.nextBoard = null;
+                this.gameOver = false;
+                this.megaBoard = Array(9).fill().map(() => Array(9).fill(null));
+                this.wonBoards = Array(9).fill(null);
+                
+                this.createBoard();
+                this.updateDisplay();
+                
+                // Reset status message styling
+                const status = document.getElementById('status');
+                status.classList.remove('win');
+            }
+            
+            showTutorial() {
+                document.getElementById('tutorialModal').classList.add('active');
+            }
+            
+            hideTutorial() {
+                document.getElementById('tutorialModal').classList.remove('active');
+            }
+        }
+
+        // Initialize the game when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new UltimateTicTacToe();
+        });
+    </script>
+</body>
+</html>
