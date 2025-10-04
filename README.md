@@ -12,7 +12,7 @@ A futuristic, neon-styled implementation of the complex board game "Ultimate Tic
 
 ### 🚀 Live Demo
 
-[**PLAY THE GAME NOW**](https://dneese.github.io/ULTIMATE-TIC-TAC-TOE-CYBERPUNK-EDITION/ultimate-tictacto-cybepank-edition.html)
+[**PLAY THE GAME NOW**](https://dneese.github.io/ULTIMATE-TIC-TAC-TOE-CYBERPUNK-EDITION/index.html)
 
 ### ✨ Features
 
@@ -48,7 +48,7 @@ Ultimate Tic-Tac-Toe is a strategic twist on the classic game:
 
 ### 🚀 Живе Демо
 
-[**ПОЧАТИ ГРАТИ**](https://dneese.github.io/ULTIMATE-TIC-TAC-TOE-CYBERPUNK-EDITION/ultimate-tictacto-cybepank-edition.html)
+[**ПОЧАТИ ГРАТИ**](https://dneese.github.io/ULTIMATE-TIC-TAC-TOE-CYBERPUNK-EDITION/)
 
 ### ✨ Особливості
 
