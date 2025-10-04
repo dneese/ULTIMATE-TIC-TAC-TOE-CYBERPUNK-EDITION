@@ -187,7 +187,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ### 🙏 Acknowledgments
 
-- Inspired by the classic Ultimate Tic-Tac-Toe strategy game
+- Inspired by the classic Ultimate Tic-Tac-Toe (https://github.com/dneese/cyberpunk-tic-tac-toe) strategy game
 - Cyberpunk aesthetic inspired by retro-futuristic design
 - Font: [Orbitron](https://fonts.google.com/specimen/Orbitron) by Google Fonts
 
@@ -361,7 +361,7 @@ git push origin feature/ЧудоваФункція
 
 ### 🙏 Подяки
 
-- Натхненний класичною стратегічною грою Ultimate Tic-Tac-Toe
+- Натхненний класичною стратегічною грою Хрестики ноликі Tic-Tac-Toe (https://github.com/dneese/cyberpunk-tic-tac-toe)
 - Кіберпанк естетика натхненна ретро-футуристичним дизайном
 - Шрифт: [Orbitron](https://fonts.google.com/specimen/Orbitron) від Google Fonts
 
