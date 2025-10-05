@@ -19,7 +19,14 @@
 
 ---
 
-![Game Preview](assets/images/screenshot-1.png)
+## Screenshots
+
+<div style="display: flex; flex-wrap: wrap; gap: 10px;">
+    <img src="assets/images/screenshot-1.png" alt="Screenshot 1" width="300">
+    <img src="assets/images/screenshot-2.png" alt="Screenshot 2" width="300">
+    <img src="assets/images/screenshot-3.png" alt="Screenshot 3" width="300">
+    <img src="assets/images/screenshot-4.png" alt="Screenshot 4" width="300">
+</div>
 
 
 </div>
