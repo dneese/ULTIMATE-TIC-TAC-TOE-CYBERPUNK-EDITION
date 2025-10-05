@@ -19,7 +19,7 @@
 
 ---
 
-![Game Preview](assets/images/screenshot-1.png
+![Game Preview](assets/images/screenshot-1.png)
 
 
 </div>
