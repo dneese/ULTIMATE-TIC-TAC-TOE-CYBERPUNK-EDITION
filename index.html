@@ -135,6 +135,66 @@
             background: rgba(144, 108, 255, 0.3);
         }
 
+        /* Game mode selector */
+        .game-mode-selector {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            padding: 10px 20px;
+            background: rgba(20, 20, 40, 0.7);
+            border: 2px solid var(--neon-purple);
+            border-radius: 6px;
+            color: var(--neon-cyan);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 140px;
+            text-align: center;
+        }
+
+        .mode-btn.active {
+            background: rgba(144, 108, 255, 0.3);
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 15px var(--neon-cyan);
+        }
+
+        .mode-btn:hover {
+            background: rgba(144, 108, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* AI Progress */
+        .ai-progress {
+            width: 100%;
+            height: 4px;
+            background: rgba(20, 20, 40, 0.8);
+            border-radius: 2px;
+            margin-top: 10px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .ai-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink));
+            border-radius: 2px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .progress-text {
+            font-size: 0.7rem;
+            text-align: center;
+            margin-top: 5px;
+            color: var(--neon-cyan);
+        }
+
         /* Tutorial button */
         .tutorial-btn {
             padding: 8px 16px;
@@ -206,6 +266,18 @@
             background: var(--neon-pink);
             color: var(--dark-bg);
             box-shadow: 0 0 15px var(--neon-pink);
+        }
+
+        .ai-thinking {
+            background: var(--neon-yellow);
+            color: var(--dark-bg);
+            box-shadow: 0 0 15px var(--neon-yellow);
+            animation: aiPulse 1s infinite;
+        }
+
+        @keyframes aiPulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
         }
 
         .score-display {
@@ -425,6 +497,18 @@
             font-size: 1.3rem;
         }
 
+        .status-message.ai-thinking {
+            border-color: var(--neon-yellow);
+            box-shadow: 0 0 20px var(--neon-yellow);
+            color: var(--neon-yellow);
+            animation: thinkingPulse 1.5s infinite;
+        }
+
+        @keyframes thinkingPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
         @keyframes statusGlitch {
             0%, 94%, 100% { transform: translate(0); }
             95% { transform: translate(-3px, 3px); }
@@ -492,6 +576,39 @@
         .btn-secondary:hover {
             background: rgba(0, 255, 255, 0.1);
             box-shadow: 0 0 25px rgba(0, 255, 255, 0.6);
+        }
+
+        /* Difficulty selector */
+        .difficulty-selector {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .diff-btn {
+            padding: 8px 16px;
+            background: rgba(20, 20, 40, 0.5);
+            border: 1px solid var(--neon-purple);
+            border-radius: 4px;
+            color: var(--neon-cyan);
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 100px;
+            text-align: center;
+        }
+
+        .diff-btn.active {
+            background: rgba(144, 108, 255, 0.3);
+            border-color: var(--neon-green);
+            box-shadow: 0 0 10px var(--neon-green);
+        }
+
+        .diff-btn:hover {
+            background: rgba(144, 108, 255, 0.2);
         }
 
         /* Tutorial modal */
@@ -578,6 +695,8 @@
             .local-board.won::before { font-size: 5rem; }
             .game-info { flex-direction: column; }
             .language-selector { position: static; margin-bottom: 10px; }
+            .game-mode-selector { flex-direction: column; }
+            .mode-btn { min-width: 100%; }
         }
 
         @media (max-width: 480px) {
@@ -587,6 +706,8 @@
             .local-board.won::before { font-size: 4rem; }
             .controls { flex-direction: column; }
             .cyber-button { min-width: 100%; }
+            .difficulty-selector { flex-direction: column; }
+            .diff-btn { min-width: 100%; }
         }
     </style>
 </head>
@@ -599,6 +720,28 @@
             </div>
             <h1 data-uk="ULTIMATE TIC-TAC-TOE" data-en="ULTIMATE TIC-TAC-TOE">ULTIMATE TIC-TAC-TOE</h1>
             <div class="subtitle" data-uk="КІБЕРПАНК ВЕРСІЯ" data-en="CYBERPUNK EDITION">КІБЕРПАНК ВЕРСІЯ</div>
+            
+            <!-- Game Mode Selector -->
+            <div class="game-mode-selector">
+                <button class="mode-btn active" data-mode="twoPlayers" data-uk="👥 Два гравці" data-en="👥 Two Players">👥 Два гравці</button>
+                <button class="mode-btn" data-mode="vsAI" data-uk="🤖 Гра з AI" data-en="🤖 VS AI">🤖 Гра з AI</button>
+            </div>
+
+            <!-- Difficulty Selector (visible only in AI mode) -->
+            <div class="difficulty-selector" id="difficultySelector" style="display: none;">
+                <button class="diff-btn active" data-diff="easy" data-uk="😊 Легкий" data-en="😊 Easy">😊 Легкий</button>
+                <button class="diff-btn" data-diff="medium" data-uk="😐 Середній" data-en="😐 Medium">😐 Середній</button>
+                <button class="diff-btn" data-diff="hard" data-uk="😈 Складний" data-en="😈 Hard">😈 Складний</button>
+                <button class="diff-btn" data-diff="expert" data-uk="🧠 Експерт" data-en="🧠 Expert">🧠 Експерт</button>
+                <button class="diff-btn" data-diff="master" data-uk="🏆 Майстер" data-en="🏆 Master">🏆 Майстер</button>
+            </div>
+
+            <!-- AI Progress -->
+            <div class="ai-progress" id="aiProgress">
+                <div class="ai-progress-bar" id="aiProgressBar"></div>
+                <div class="progress-text" id="progressText">AI аналізує...</div>
+            </div>
+
             <button class="tutorial-btn" id="tutorialBtn" data-uk="📖 Як грати?" data-en="📖 How to play?">📖 Як грати?</button>
         </div>
 
@@ -687,6 +830,12 @@
                     </li>
                 </ul>
 
+                <h3 data-uk="🎮 Режими гри" data-en="🎮 Game Modes">🎮 Режими гри</h3>
+                <ul>
+                    <li data-uk="👥 Два гравці: Класичний режим для гри з другом" data-en="👥 Two Players: Classic mode to play with a friend">👥 <strong>Два гравці:</strong> Класичний режим для гри з другом</li>
+                    <li data-uk="🤖 Гра з AI: Гра проти штучного інтелекту з п'ятьма рівнями складності" data-en="🤖 VS AI: Play against artificial intelligence with five difficulty levels">🤖 <strong>Гра з AI:</strong> Гра проти штучного інтелекту з п'ятьма рівнями складності</li>
+                </ul>
+
                 <h3 data-uk="💡 Підказки" data-en="💡 Tips">💡 Підказки</h3>
                 <ul>
                     <li data-uk="Думайте наперед! Ваш хід визначає, де гратиме суперник." data-en="Think ahead! Your move determines where your opponent will play.">Думайте наперед! Ваш хід визначає, де гратиме суперник.</li>
@@ -711,6 +860,279 @@
 
     <script>
         // ============================================
+        // ADVANCED MCTS AI PLAYER
+        // ============================================
+        class MCTSNode {
+            constructor(state, parent = null, move = null) {
+                this.state = state;
+                this.parent = parent;
+                this.move = move;
+                this.children = [];
+                this.wins = 0;
+                this.visits = 0;
+                this.untriedMoves = state.getLegalMoves();
+            }
+
+            selectChild() {
+                let bestChild = this.children[0];
+                let bestValue = -Infinity;
+
+                for (const child of this.children) {
+                    if (child.visits === 0) {
+                        return child;
+                    }
+                    
+                    const exploitation = child.wins / child.visits;
+                    const exploration = Math.sqrt(2 * Math.log(this.visits) / child.visits);
+                    const ucbValue = exploitation + exploration;
+                    
+                    if (ucbValue > bestValue) {
+                        bestValue = ucbValue;
+                        bestChild = child;
+                    }
+                }
+                
+                return bestChild;
+            }
+
+            addChild(move, state) {
+                const child = new MCTSNode(state, this, move);
+                this.untriedMoves = this.untriedMoves.filter(m => 
+                    !(m.boardIndex === move.boardIndex && m.cellIndex === move.cellIndex)
+                );
+                this.children.push(child);
+                return child;
+            }
+
+            update(result) {
+                this.visits++;
+                this.wins += result;
+            }
+        }
+
+        class MCTSPlayer {
+            constructor(difficulty = 'medium') {
+                this.difficulty = difficulty;
+                this.symbol = 'O';
+                this.opponentSymbol = 'X';
+                this.setDifficulty(difficulty);
+            }
+
+            setDifficulty(difficulty) {
+                this.difficulty = difficulty;
+                switch(difficulty) {
+                    case 'easy':
+                        this.iterations = 200;
+                        this.timeLimit = 1000;
+                        break;
+                    case 'medium':
+                        this.iterations = 800;
+                        this.timeLimit = 2000;
+                        break;
+                    case 'hard':
+                        this.iterations = 1500;
+                        this.timeLimit = 3500;
+                        break;
+                    case 'expert':
+                        this.iterations = 3000;
+                        this.timeLimit = 5000;
+                        break;
+                    case 'master':
+                        this.iterations = 6000;
+                        this.timeLimit = 8000;
+                        break;
+                    default:
+                        this.iterations = 800;
+                        this.timeLimit = 2000;
+                }
+            }
+
+            getMove(gameState, progressCallback = null) {
+                const root = new MCTSNode(gameState);
+                const startTime = Date.now();
+                let iterations = 0;
+
+                while (iterations < this.iterations && 
+                       (Date.now() - startTime) < this.timeLimit) {
+                    
+                    let node = root;
+                    let state = gameState.clone();
+
+                    // Selection
+                    while (node.untriedMoves.length === 0 && node.children.length > 0) {
+                        node = node.selectChild();
+                        state.makeMove(node.move);
+                    }
+
+                    // Expansion
+                    if (node.untriedMoves.length > 0) {
+                        const move = node.untriedMoves[
+                            Math.floor(Math.random() * node.untriedMoves.length)
+                        ];
+                        state.makeMove(move);
+                        node = node.addChild(move, state);
+                    }
+
+                    // Simulation
+                    let simulationState = state.clone();
+                    while (!simulationState.isTerminal()) {
+                        const moves = simulationState.getLegalMoves();
+                        if (moves.length === 0) break;
+                        const randomMove = moves[Math.floor(Math.random() * moves.length)];
+                        simulationState.makeMove(randomMove);
+                    }
+
+                    // Backpropagation
+                    const result = this.getResult(simulationState);
+                    while (node !== null) {
+                        node.update(result);
+                        node = node.parent;
+                    }
+
+                    iterations++;
+                    
+                    // Update progress
+                    if (progressCallback && iterations % 50 === 0) {
+                        const progress = Math.min(100, 
+                            Math.max(
+                                (iterations / this.iterations) * 100,
+                                ((Date.now() - startTime) / this.timeLimit) * 100
+                            )
+                        );
+                        progressCallback(progress, iterations);
+                    }
+                }
+
+                // Select best move (most visited)
+                let bestChild = root.children[0];
+                for (const child of root.children) {
+                    if (child.visits > bestChild.visits) {
+                        bestChild = child;
+                    }
+                }
+
+                console.log(`MCTS: ${iterations} iterations, best move visits: ${bestChild ? bestChild.visits : 0}`);
+                return bestChild ? bestChild.move : null;
+            }
+
+            getResult(state) {
+                const winner = state.getWinner();
+                if (winner === this.symbol) return 1;
+                if (winner === this.opponentSymbol) return 0;
+                if (winner === 'tie') return 0.5;
+                
+                return 0.5; // Neutral for non-terminal states
+            }
+        }
+
+        // ============================================
+        // GAME STATE FOR MCTS
+        // ============================================
+        class MCTSGameState {
+            constructor(localBoards, localBoardsStatus, currentPlayer, activeBoard) {
+                this.localBoards = this.deepCopy(localBoards);
+                this.localBoardsStatus = [...localBoardsStatus];
+                this.currentPlayer = currentPlayer;
+                this.activeBoard = activeBoard;
+            }
+
+            clone() {
+                return new MCTSGameState(
+                    this.localBoards,
+                    this.localBoardsStatus,
+                    this.currentPlayer,
+                    this.activeBoard
+                );
+            }
+
+            deepCopy(boards) {
+                return boards.map(board => [...board]);
+            }
+
+            getLegalMoves() {
+                const moves = [];
+                
+                const playableBoards = this.activeBoard === null ? 
+                    this.localBoardsStatus.map((status, index) => status === '' ? index : -1).filter(i => i !== -1) :
+                    [this.activeBoard];
+
+                playableBoards.forEach(boardIndex => {
+                    if (this.localBoardsStatus[boardIndex] === '') {
+                        for (let cellIndex = 0; cellIndex < 9; cellIndex++) {
+                            if (this.localBoards[boardIndex][cellIndex] === '') {
+                                moves.push({ boardIndex, cellIndex });
+                            }
+                        }
+                    }
+                });
+
+                return moves;
+            }
+
+            makeMove(move) {
+                const { boardIndex, cellIndex } = move;
+                
+                this.localBoards[boardIndex][cellIndex] = this.currentPlayer;
+
+                const localWinner = this.checkLocalBoardWinner(boardIndex);
+                if (localWinner) {
+                    this.localBoardsStatus[boardIndex] = localWinner;
+                } else if (this.isLocalBoardFull(boardIndex)) {
+                    this.localBoardsStatus[boardIndex] = 'tie';
+                }
+
+                this.activeBoard = this.localBoardsStatus[cellIndex] === '' ? cellIndex : null;
+                this.currentPlayer = this.currentPlayer === 'X' ? 'O' : 'X';
+            }
+
+            isTerminal() {
+                return this.getWinner() !== null;
+            }
+
+            getWinner() {
+                const patterns = [
+                    [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                    [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                    [0, 4, 8], [2, 4, 6]
+                ];
+
+                for (const [a, b, c] of patterns) {
+                    if (this.localBoardsStatus[a] && 
+                        this.localBoardsStatus[a] === this.localBoardsStatus[b] && 
+                        this.localBoardsStatus[a] === this.localBoardsStatus[c]) {
+                        return this.localBoardsStatus[a];
+                    }
+                }
+
+                if (this.localBoardsStatus.every(status => status !== '')) {
+                    return 'tie';
+                }
+
+                return null;
+            }
+
+            checkLocalBoardWinner(boardIndex) {
+                const board = this.localBoards[boardIndex];
+                const patterns = [
+                    [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                    [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                    [0, 4, 8], [2, 4, 6]
+                ];
+
+                for (const [a, b, c] of patterns) {
+                    if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+                        return board[a];
+                    }
+                }
+                return null;
+            }
+
+            isLocalBoardFull(boardIndex) {
+                return this.localBoards[boardIndex].every(cell => cell !== '');
+            }
+        }
+
+        // ============================================
         // LANGUAGE MANAGER
         // ============================================
         class LanguageManager {
@@ -720,7 +1142,6 @@
             }
             
             init() {
-                // Try to get saved language from localStorage
                 const savedLang = localStorage.getItem('ultimateTicTacToeLang');
                 if (savedLang) {
                     this.currentLang = savedLang;
@@ -745,14 +1166,12 @@
                 localStorage.setItem('ultimateTicTacToeLang', lang);
                 this.applyLanguage();
                 
-                // Update active button
                 document.querySelectorAll('.lang-btn').forEach(btn => {
                     btn.classList.toggle('active', btn.dataset.lang === lang);
                 });
             }
             
             applyLanguage() {
-                // Update all elements with data attributes for language
                 const elements = document.querySelectorAll('[data-uk], [data-en]');
                 elements.forEach(element => {
                     if (element.dataset[this.currentLang]) {
@@ -767,10 +1186,6 @@
             
             getText(ukText, enText) {
                 return this.currentLang === 'uk' ? ukText : enText;
-            }
-            
-            getCurrentLang() {
-                return this.currentLang;
             }
         }
 
@@ -787,11 +1202,11 @@
                 try {
                     this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 } catch (e) {
-                    console.log('Web Audio API is not supported in this browser');
+                    console.log("Web Audio API не підтримується");
                 }
             }
             
-            playTone(frequency, duration, type = 'sine', volume = 0.1) {
+            playTone(frequency, duration, type = 'sine', volume = 0.15) {
                 if (!this.audioContext) return;
                 
                 const oscillator = this.audioContext.createOscillator();
@@ -800,69 +1215,128 @@
                 oscillator.connect(gainNode);
                 gainNode.connect(this.audioContext.destination);
                 
-                oscillator.type = type;
                 oscillator.frequency.value = frequency;
+                oscillator.type = type;
                 
-                gainNode.gain.value = volume;
+                gainNode.gain.setValueAtTime(0, this.audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(volume, this.audioContext.currentTime + 0.01);
                 gainNode.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + duration);
                 
                 oscillator.start(this.audioContext.currentTime);
                 oscillator.stop(this.audioContext.currentTime + duration);
             }
             
-            playMoveSound() {
-                this.playTone(523.25, 0.1, 'square', 0.05); // C5
+            playPlaceX() {
+                this.playTone(523.25, 0.1, 'square');
             }
             
-            playWinSound() {
-                this.playTone(659.25, 0.3, 'sine', 0.1); // E5
-                setTimeout(() => this.playTone(783.99, 0.3, 'sine', 0.1), 100); // G5
-                setTimeout(() => this.playTone(1046.50, 0.5, 'sine', 0.1), 200); // C6
+            playPlaceO() {
+                this.playTone(392.00, 0.1, 'triangle');
             }
             
-            playBoardWinSound() {
-                this.playTone(392.00, 0.2, 'sine', 0.08); // G4
-                setTimeout(() => this.playTone(523.25, 0.3, 'sine', 0.08), 150); // C5
+            playWinLocal() {
+                this.playTone(659.25, 0.15, 'square');
+            }
+            
+            playWinGlobal() {
+                this.playTone(523.25, 0.1, 'square');
+                setTimeout(() => this.playTone(659.25, 0.1, 'square'), 100);
+                setTimeout(() => this.playTone(783.99, 0.2, 'square'), 200);
+            }
+            
+            playAIMove() {
+                this.playTone(349.23, 0.1, 'sawtooth');
+            }
+
+            playAIThinking() {
+                this.playTone(261.63, 0.05, 'sine', 0.1);
+                setTimeout(() => this.playTone(293.66, 0.05, 'sine', 0.1), 50);
+                setTimeout(() => this.playTone(329.63, 0.05, 'sine', 0.1), 100);
             }
         }
 
         // ============================================
-        // GAME LOGIC
+        // ULTIMATE TIC-TAC-TOE GAME WITH MCTS AI
         // ============================================
         class UltimateTicTacToe {
             constructor() {
-                this.languageManager = new LanguageManager();
-                this.soundGenerator = new SoundGenerator();
+                this.localBoards = Array(9).fill(null).map(() => Array(9).fill(''));
+                this.localBoardsStatus = Array(9).fill('');
+                this.globalBoard = Array(9).fill('');
+                
                 this.currentPlayer = 'X';
-                this.nextBoard = null;
+                this.activeBoard = null;
                 this.gameOver = false;
                 this.scores = { X: 0, O: 0 };
-                this.megaBoard = Array(9).fill().map(() => Array(9).fill(null));
-                this.wonBoards = Array(9).fill(null);
+                
+                this.gameMode = 'twoPlayers';
+                this.aiDifficulty = 'medium';
+                this.aiThinking = false;
+                
+                this.languageManager = new LanguageManager();
+                this.sound = new SoundGenerator();
+                this.mctsAI = new MCTSPlayer(this.aiDifficulty);
+                
                 this.init();
             }
             
             init() {
-                this.createBoard();
+                this.drawBoard();
                 this.setupEventListeners();
-                this.updateDisplay();
+                this.updateStatus();
+                this.loadScores();
             }
             
-            createBoard() {
+            drawBoard() {
                 const megaBoard = document.getElementById('megaBoard');
                 megaBoard.innerHTML = '';
                 
                 for (let boardIndex = 0; boardIndex < 9; boardIndex++) {
                     const localBoard = document.createElement('div');
                     localBoard.className = 'local-board';
-                    localBoard.dataset.index = boardIndex;
+                    localBoard.dataset.boardIndex = boardIndex;
+                    
+                    const status = this.localBoardsStatus[boardIndex];
+                    if (status === 'X') {
+                        localBoard.classList.add('won', 'won-x');
+                        localBoard.dataset.winner = 'X';
+                    } else if (status === 'O') {
+                        localBoard.classList.add('won', 'won-o');
+                        localBoard.dataset.winner = 'O';
+                    } else if (status === 'tie') {
+                        localBoard.classList.add('tied');
+                    }
+                    
+                    if (this.activeBoard === null || this.activeBoard === boardIndex) {
+                        if (status === '' && !this.gameOver) {
+                            localBoard.classList.add('active');
+                        }
+                    }
                     
                     for (let cellIndex = 0; cellIndex < 9; cellIndex++) {
                         const cell = document.createElement('div');
                         cell.className = 'cell';
-                        cell.dataset.board = boardIndex;
-                        cell.dataset.cell = cellIndex;
-                        cell.addEventListener('click', (e) => this.handleCellClick(e));
+                        cell.dataset.boardIndex = boardIndex;
+                        cell.dataset.cellIndex = cellIndex;
+                        
+                        const cellValue = this.localBoards[boardIndex][cellIndex];
+                        if (cellValue) {
+                            cell.textContent = cellValue;
+                            cell.classList.add(cellValue.toLowerCase());
+                        }
+                        
+                        const isActiveBoard = this.activeBoard === null || this.activeBoard === boardIndex;
+                        const isBoardAvailable = status === '';
+                        
+                        if (!isActiveBoard || !isBoardAvailable || cellValue || this.gameOver) {
+                            cell.classList.add('disabled');
+                        }
+                        
+                        if (this.gameMode === 'vsAI' && this.currentPlayer === 'O' && !this.gameOver) {
+                            cell.classList.add('disabled');
+                        }
+                        
+                        cell.addEventListener('click', () => this.handleCellClick(boardIndex, cellIndex));
                         localBoard.appendChild(cell);
                     }
                     
@@ -870,234 +1344,348 @@
                 }
             }
             
-            setupEventListeners() {
-                document.getElementById('resetBtn').addEventListener('click', () => this.resetGame());
-                document.getElementById('rulesBtn').addEventListener('click', () => this.showTutorial());
-                document.getElementById('tutorialBtn').addEventListener('click', () => this.showTutorial());
-                document.getElementById('closeModal').addEventListener('click', () => this.hideTutorial());
+            handleCellClick(boardIndex, cellIndex) {
+                if (this.gameOver) return;
+                if (this.localBoards[boardIndex][cellIndex] !== '') return;
+                if (this.localBoardsStatus[boardIndex] !== '') return;
+                if (this.activeBoard !== null && this.activeBoard !== boardIndex) return;
                 
-                // Close modal when clicking outside
+                if (this.gameMode === 'vsAI' && this.currentPlayer === 'O') return;
+                
+                this.makeMove(boardIndex, cellIndex);
+            }
+            
+            makeMove(boardIndex, cellIndex) {
+                this.localBoards[boardIndex][cellIndex] = this.currentPlayer;
+                
+                this.currentPlayer === 'X' ? this.sound.playPlaceX() : this.sound.playPlaceO();
+                
+                if (navigator.vibrate) navigator.vibrate(10);
+                
+                const localWinner = this.checkLocalBoardWinner(boardIndex);
+                if (localWinner) {
+                    this.localBoardsStatus[boardIndex] = localWinner;
+                    this.globalBoard[boardIndex] = localWinner;
+                    this.sound.playWinLocal();
+                    
+                    const globalWinner = this.checkGlobalWinner();
+                    if (globalWinner) {
+                        this.handleGameWin(globalWinner);
+                        this.drawBoard();
+                        return;
+                    }
+                } else if (this.isLocalBoardFull(boardIndex)) {
+                    this.localBoardsStatus[boardIndex] = 'tie';
+                }
+                
+                const nextBoard = cellIndex;
+                if (this.localBoardsStatus[nextBoard] === '') {
+                    this.activeBoard = nextBoard;
+                } else {
+                    this.activeBoard = null;
+                }
+                
+                this.currentPlayer = this.currentPlayer === 'X' ? 'O' : 'X';
+                
+                this.drawBoard();
+                this.updateStatus();
+                
+                if (this.gameMode === 'vsAI' && this.currentPlayer === 'O' && !this.gameOver) {
+                    this.makeAIMove();
+                }
+            }
+
+            createMCTSState() {
+                return new MCTSGameState(
+                    this.localBoards,
+                    this.localBoardsStatus,
+                    this.currentPlayer,
+                    this.activeBoard
+                );
+            }
+            
+            makeAIMove() {
+                if (this.aiThinking) return;
+                this.aiThinking = true;
+
+                const statusElement = document.getElementById('status');
+                const playerIcon = document.querySelector('.player-icon');
+                const progressBar = document.getElementById('aiProgress');
+                const progressBarInner = document.getElementById('aiProgressBar');
+                const progressText = document.getElementById('progressText');
+
+                statusElement.textContent = this.languageManager.getText(
+                    '🤖 AI аналізує позицію...',
+                    '🤖 AI analyzing position...'
+                );
+                statusElement.classList.add('ai-thinking');
+                progressBar.style.display = 'block';
+
+                playerIcon.classList.add('ai-thinking');
+                playerIcon.textContent = '🤖';
+
+                this.sound.playAIThinking();
+
+                const gameState = this.createMCTSState();
+                
+                const progressCallback = (progress, iterations) => {
+                    progressBarInner.style.width = `${progress}%`;
+                    progressText.textContent = this.languageManager.getText(
+                        `AI аналізує... ${iterations} ітерацій`,
+                        `AI analyzing... ${iterations} iterations`
+                    );
+                };
+
+                setTimeout(() => {
+                    try {
+                        const aiMove = this.mctsAI.getMove(gameState, progressCallback);
+                        
+                        if (aiMove) {
+                            this.sound.playAIMove();
+                            this.makeMove(aiMove.boardIndex, aiMove.cellIndex);
+                        } else {
+                            const availableMoves = this.getAvailableMoves();
+                            if (availableMoves.length > 0) {
+                                const randomMove = availableMoves[Math.floor(Math.random() * availableMoves.length)];
+                                this.makeMove(randomMove.boardIndex, randomMove.cellIndex);
+                            }
+                        }
+                    } catch (error) {
+                        console.error('AI move error:', error);
+                        const availableMoves = this.getAvailableMoves();
+                        if (availableMoves.length > 0) {
+                            const randomMove = availableMoves[Math.floor(Math.random() * availableMoves.length)];
+                            this.makeMove(randomMove.boardIndex, randomMove.cellIndex);
+                        }
+                    }
+
+                    statusElement.classList.remove('ai-thinking');
+                    playerIcon.classList.remove('ai-thinking');
+                    progressBar.style.display = 'none';
+                    this.aiThinking = false;
+                }, 100);
+            }
+
+            getAvailableMoves() {
+                const moves = [];
+                const playableBoards = this.activeBoard === null ? 
+                    this.localBoardsStatus.map((status, index) => status === '' ? index : -1).filter(i => i !== -1) :
+                    [this.activeBoard];
+                
+                playableBoards.forEach(boardIndex => {
+                    if (this.localBoardsStatus[boardIndex] === '') {
+                        for (let cellIndex = 0; cellIndex < 9; cellIndex++) {
+                            if (this.localBoards[boardIndex][cellIndex] === '') {
+                                moves.push({ boardIndex, cellIndex });
+                            }
+                        }
+                    }
+                });
+                return moves;
+            }
+            
+            checkLocalBoardWinner(boardIndex) {
+                const board = this.localBoards[boardIndex];
+                const patterns = [
+                    [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                    [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                    [0, 4, 8], [2, 4, 6]
+                ];
+                
+                for (const [a, b, c] of patterns) {
+                    if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+                        return board[a];
+                    }
+                }
+                return null;
+            }
+            
+            isLocalBoardFull(boardIndex) {
+                return this.localBoards[boardIndex].every(cell => cell !== '');
+            }
+            
+            checkGlobalWinner() {
+                const patterns = [
+                    [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                    [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                    [0, 4, 8], [2, 4, 6]
+                ];
+                
+                for (const [a, b, c] of patterns) {
+                    if (this.globalBoard[a] && 
+                        this.globalBoard[a] === this.globalBoard[b] && 
+                        this.globalBoard[a] === this.globalBoard[c]) {
+                        return this.globalBoard[a];
+                    }
+                }
+                
+                if (this.localBoardsStatus.every(status => status !== '')) {
+                    return 'tie';
+                }
+                
+                return null;
+            }
+            
+            handleGameWin(winner) {
+                this.gameOver = true;
+                
+                if (winner !== 'tie') {
+                    this.scores[winner]++;
+                    this.saveScores();
+                    this.updateScores();
+                    this.sound.playWinGlobal();
+                    
+                    if (navigator.vibrate) {
+                        navigator.vibrate([100, 50, 100, 50, 200]);
+                    }
+                    
+                    this.updateStatus(
+                        this.languageManager.getText(
+                            `🎉 Гравець ${winner} виграв гру!`,
+                            `🎉 Player ${winner} wins!`
+                        ),
+                        true
+                    );
+                } else {
+                    this.updateStatus(
+                        this.languageManager.getText('🤝 Глобальна нічия!', '🤝 Game tied!'),
+                        true
+                    );
+                }
+            }
+            
+            updateStatus(message = null, isWin = false) {
+                const statusElement = document.getElementById('status');
+                const playerIcon = document.querySelector('.player-icon');
+                const playerText = document.getElementById('currentPlayerText');
+                
+                if (message) {
+                    statusElement.textContent = message;
+                    if (isWin) {
+                        statusElement.classList.add('win');
+                    }
+                    return;
+                }
+                
+                statusElement.classList.remove('win', 'ai-thinking');
+                playerIcon.className = 'player-icon';
+                playerIcon.classList.add(this.currentPlayer === 'X' ? 'player-x' : 'player-o');
+                playerIcon.textContent = this.currentPlayer;
+                
+                playerText.textContent = this.languageManager.getText(
+                    `Гравець ${this.currentPlayer}`,
+                    `Player ${this.currentPlayer}`
+                );
+                
+                if (this.activeBoard === null) {
+                    statusElement.textContent = this.languageManager.getText(
+                        `Гравець ${this.currentPlayer} може зробити хід в будь-якій дошці`,
+                        `Player ${this.currentPlayer} can move in any board`
+                    );
+                } else {
+                    const row = Math.floor(this.activeBoard / 3) + 1;
+                    const col = (this.activeBoard % 3) + 1;
+                    statusElement.textContent = this.languageManager.getText(
+                        `Гравець ${this.currentPlayer} повинен грати в дошці ${row}×${col}`,
+                        `Player ${this.currentPlayer} must play in board ${row}×${col}`
+                    );
+                }
+            }
+            
+            updateScores() {
+                document.getElementById('scoreX').textContent = this.scores.X;
+                document.getElementById('scoreO').textContent = this.scores.O;
+            }
+            
+            saveScores() {
+                window.ultimateScores = this.scores;
+            }
+            
+            loadScores() {
+                if (window.ultimateScores) {
+                    this.scores = window.ultimateScores;
+                    this.updateScores();
+                }
+            }
+            
+            setGameMode(mode) {
+                this.gameMode = mode;
+                const difficultySelector = document.getElementById('difficultySelector');
+                
+                if (mode === 'vsAI') {
+                    difficultySelector.style.display = 'flex';
+                } else {
+                    difficultySelector.style.display = 'none';
+                }
+                
+                this.resetGame();
+            }
+            
+            setAIDifficulty(difficulty) {
+                this.aiDifficulty = difficulty;
+                this.mctsAI.setDifficulty(difficulty);
+            }
+            
+            resetGame() {
+                this.localBoards = Array(9).fill(null).map(() => Array(9).fill(''));
+                this.localBoardsStatus = Array(9).fill('');
+                this.globalBoard = Array(9).fill('');
+                this.currentPlayer = 'X';
+                this.activeBoard = null;
+                this.gameOver = false;
+                this.aiThinking = false;
+                
+                const progressBar = document.getElementById('aiProgress');
+                progressBar.style.display = 'none';
+                
+                this.drawBoard();
+                this.updateStatus();
+            }
+            
+            setupEventListeners() {
+                document.getElementById('resetBtn').addEventListener('click', () => {
+                    this.resetGame();
+                });
+                
+                document.getElementById('rulesBtn').addEventListener('click', () => {
+                    this.showTutorial();
+                });
+                
+                document.getElementById('tutorialBtn').addEventListener('click', () => {
+                    this.showTutorial();
+                });
+                
+                document.getElementById('closeModal').addEventListener('click', () => {
+                    this.hideTutorial();
+                });
+                
+                document.querySelectorAll('.mode-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        this.setGameMode(btn.dataset.mode);
+                    });
+                });
+                
+                document.querySelectorAll('.diff-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        this.setAIDifficulty(btn.dataset.diff);
+                    });
+                });
+                
                 document.getElementById('tutorialModal').addEventListener('click', (e) => {
                     if (e.target.id === 'tutorialModal') {
                         this.hideTutorial();
                     }
                 });
-            }
-            
-            handleCellClick(event) {
-                if (this.gameOver) return;
                 
-                const cell = event.currentTarget;
-                const boardIndex = parseInt(cell.dataset.board);
-                const cellIndex = parseInt(cell.dataset.cell);
-                
-                // Check if move is allowed
-                if (!this.isMoveAllowed(boardIndex, cellIndex)) return;
-                
-                // Make the move
-                this.makeMove(boardIndex, cellIndex);
-            }
-            
-            isMoveAllowed(boardIndex, cellIndex) {
-                // Check if the board is already won or tied
-                if (this.wonBoards[boardIndex]) return false;
-                
-                // Check if cell is already occupied
-                if (this.megaBoard[boardIndex][cellIndex]) return false;
-                
-                // Check if this is the first move (any board is allowed)
-                if (this.nextBoard === null) return true;
-                
-                // Check if the move is in the correct board
-                if (this.nextBoard !== boardIndex) return false;
-                
-                return true;
-            }
-            
-            makeMove(boardIndex, cellIndex) {
-                // Update game state
-                this.megaBoard[boardIndex][cellIndex] = this.currentPlayer;
-                
-                // Update UI
-                const cell = document.querySelector(`.cell[data-board="${boardIndex}"][data-cell="${cellIndex}"]`);
-                cell.textContent = this.currentPlayer;
-                cell.classList.add(this.currentPlayer.toLowerCase());
-                
-                // Play move sound
-                this.soundGenerator.playMoveSound();
-                
-                // Check for win in the local board
-                this.checkLocalBoardWin(boardIndex);
-                
-                // Check for overall game win
-                this.checkGameWin();
-                
-                // Determine next board
-                this.nextBoard = this.wonBoards[cellIndex] ? null : cellIndex;
-                
-                // Switch player
-                this.currentPlayer = this.currentPlayer === 'X' ? 'O' : 'X';
-                
-                // Update display
-                this.updateDisplay();
-            }
-            
-            checkLocalBoardWin(boardIndex) {
-                const board = this.megaBoard[boardIndex];
-                const winPatterns = [
-                    [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
-                    [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
-                    [0, 4, 8], [2, 4, 6]             // diagonals
-                ];
-                
-                for (const pattern of winPatterns) {
-                    const [a, b, c] = pattern;
-                    if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-                        // Local board is won
-                        this.wonBoards[boardIndex] = board[a];
-                        this.scores[board[a]]++;
-                        
-                        // Update UI
-                        const localBoard = document.querySelector(`.local-board[data-index="${boardIndex}"]`);
-                        localBoard.classList.add('won', `won-${board[a].toLowerCase()}`);
-                        localBoard.dataset.winner = board[a];
-                        
-                        // Play win sound
-                        this.soundGenerator.playBoardWinSound();
-                        return;
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        this.hideTutorial();
                     }
-                }
-                
-                // Check for tie in local board
-                if (board.every(cell => cell !== null) && !this.wonBoards[boardIndex]) {
-                    this.wonBoards[boardIndex] = 'T';
-                    const localBoard = document.querySelector(`.local-board[data-index="${boardIndex}"]`);
-                    localBoard.classList.add('tied');
-                }
-            }
-            
-            checkGameWin() {
-                const winPatterns = [
-                    [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
-                    [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
-                    [0, 4, 8], [2, 4, 6]             // diagonals
-                ];
-                
-                for (const pattern of winPatterns) {
-                    const [a, b, c] = pattern;
-                    if (this.wonBoards[a] && this.wonBoards[a] === this.wonBoards[b] && this.wonBoards[a] === this.wonBoards[c]) {
-                        // Game is won
-                        this.gameOver = true;
-                        this.soundGenerator.playWinSound();
-                        
-                        const status = document.getElementById('status');
-                        status.textContent = this.languageManager.getText(
-                            `🎉 Гравець ${this.wonBoards[a]} переміг!`,
-                            `🎉 Player ${this.wonBoards[a]} wins!`
-                        );
-                        status.classList.add('win');
-                        return;
-                    }
-                }
-                
-                // Check for overall tie
-                if (this.wonBoards.every(board => board !== null)) {
-                    this.gameOver = true;
-                    const status = document.getElementById('status');
-                    status.textContent = this.languageManager.getText('🤝 Нічия!', '🤝 Game tied!');
-                    status.classList.add('win');
-                }
-            }
-            
-            updateDisplay() {
-                // Update current player display
-                const currentPlayerText = document.getElementById('currentPlayerText');
-                currentPlayerText.textContent = this.languageManager.getText(
-                    `Гравець ${this.currentPlayer}`,
-                    `Player ${this.currentPlayer}`
-                );
-                
-                // Update player icon
-                const playerIcon = document.querySelector('.player-icon');
-                playerIcon.className = `player-icon player-${this.currentPlayer.toLowerCase()}`;
-                playerIcon.textContent = this.currentPlayer;
-                
-                // Update scores
-                document.getElementById('scoreX').textContent = this.scores.X;
-                document.getElementById('scoreO').textContent = this.scores.O;
-                
-                // Update status message
-                this.updateStatusMessage();
-                
-                // Update active boards
-                this.updateActiveBoards();
-            }
-            
-            updateStatusMessage() {
-                const status = document.getElementById('status');
-                
-                if (this.gameOver) return;
-                
-                if (this.nextBoard === null) {
-                    status.textContent = this.languageManager.getText(
-                        `Гравець ${this.currentPlayer} може зробити хід в будь-якій дошці`,
-                        `Player ${this.currentPlayer} can move in any board`
-                    );
-                } else {
-                    status.textContent = this.languageManager.getText(
-                        `Гравець ${this.currentPlayer} повинен зробити хід в дошці ${this.nextBoard + 1}`,
-                        `Player ${this.currentPlayer} must play in board ${this.nextBoard + 1}`
-                    );
-                }
-                
-                status.classList.remove('win');
-            }
-            
-            updateActiveBoards() {
-                // Remove active class from all boards
-                document.querySelectorAll('.local-board').forEach(board => {
-                    board.classList.remove('active');
                 });
-                
-                // Add active class to allowed boards
-                if (this.nextBoard === null) {
-                    // All non-won boards are active
-                    document.querySelectorAll('.local-board').forEach(board => {
-                        const index = parseInt(board.dataset.index);
-                        if (!this.wonBoards[index]) {
-                            board.classList.add('active');
-                        }
-                    });
-                } else {
-                    // Only the specified board is active
-                    const targetBoard = document.querySelector(`.local-board[data-index="${this.nextBoard}"]`);
-                    if (targetBoard && !this.wonBoards[this.nextBoard]) {
-                        targetBoard.classList.add('active');
-                    } else {
-                        // If target board is won/tied, all non-won boards become active
-                        document.querySelectorAll('.local-board').forEach(board => {
-                            const index = parseInt(board.dataset.index);
-                            if (!this.wonBoards[index]) {
-                                board.classList.add('active');
-                            }
-                        });
-                    }
-                }
-            }
-            
-            resetGame() {
-                this.currentPlayer = 'X';
-                this.nextBoard = null;
-                this.gameOver = false;
-                this.megaBoard = Array(9).fill().map(() => Array(9).fill(null));
-                this.wonBoards = Array(9).fill(null);
-                
-                this.createBoard();
-                this.updateDisplay();
-                
-                // Reset status message styling
-                const status = document.getElementById('status');
-                status.classList.remove('win');
             }
             
             showTutorial() {
@@ -1109,9 +1697,17 @@
             }
         }
 
-        // Initialize the game when the page loads
+        // ============================================
+        // INITIALIZATION
+        // ============================================
         document.addEventListener('DOMContentLoaded', () => {
-            new UltimateTicTacToe();
+            const game = new UltimateTicTacToe();
+            
+            window.ultimateGame = game;
+            
+            console.log('%c🎮 ULTIMATE TIC-TAC-TOE', 'color: #0ff; font-size: 20px; font-weight: bold;');
+            console.log('%c⚡ Cyberpunk Edition with Advanced MCTS AI', 'color: #f0f; font-size: 16px;');
+            console.log('%cGame object available as window.ultimateGame', 'color: #0f0; font-size: 12px;');
         });
     </script>
 </body>
