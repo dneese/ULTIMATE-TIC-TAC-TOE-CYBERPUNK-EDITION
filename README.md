@@ -19,7 +19,8 @@
 
 ---
 
-![Game Preview](https://via.placeholder.com/800x450/050510/00ffff?text=ULTIMATE+TIC-TAC-TOE+CYBERPUNK)
+![Game Preview](assets/images/screenshot-1.png
+
 
 </div>
 
